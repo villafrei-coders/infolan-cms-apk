@@ -1,0 +1,30 @@
+name: Publicar versión
+
+on:
+  push:
+    branches: [main]
+    paths: [VERSION, 'apk/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Leer versión
+        id: v
+        run: echo "version=$(tr -d ' \n' < VERSION)" >> "$GITHUB_OUTPUT"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.v.outputs.version }}
+          name: Infolan CMS ${{ steps.v.outputs.version }}
+          make_latest: true
+          body: |
+            **Android 14 y equipos nuevos:** Infolan-CMS-Android14.apk
+            **Android antiguo (5 a 8):** Infolan-CMS.apk
+          files: |
+            apk/Infolan-CMS-Android14.apk
+            apk/Infolan-CMS.apk
